@@ -4,7 +4,7 @@ import random
 #import pylab
 #----------------------------------------- Clases ------------------------------------------
 class Tree:
-	def __init__(self, position, age=0., field=None):
+	def __init__(self, position,  field=None, age=0.):
 		self.position=position 
 		self.age=age
 		self.infected=False
@@ -21,9 +21,9 @@ class Tree:
 			if random.random()<infection_probability:#si un número aleatorio es menor que esa probabilidad, se contagia
 				self.infected=True
 				try:
-					self.field.positions_matrix[tree.position[0],tree.position[1]]=7
+					self.field.positions_matrix[self.position[0],self.position[1]]=7
 				except:
-					pass	
+					field.positions_matrix[self.position[0],self.position[1]]=7
 				#Para una función más realista, véase infection() en la clase diaphorina
 class Field:
 	def __init__(self, size=(100,100)):
@@ -66,12 +66,16 @@ class Field:
 					random_tree.diaphorina_amount=0 # Le asocia 0 diaforinas
 				else:#Si se pide que tenga
 					random_tree.diaphorina_amount=random.randint(300, 400) #Se le ponen entre 300 y 400
-
 				if infected==True:
-					random_tree.infection()
+					if random.random()<0.1:
+						random_tree.infected=True
+
 
 				self.forestlist[i][j]=random_tree #lo inserta en el bosque
-				self.positions_matrix[i,j]=1 #Lo marca en la matriz de posiciones
+				if random_tree.infected==True:
+					self.positions_matrix[i,j]=7 #Lo marca en la matriz de posiciones con 1
+				else:
+					self.positions_matrix[i,j]=1
 				'''print(self.forestlist[i][j])
 				print(self.positions_matrix[i,j])'''
 

@@ -51,21 +51,22 @@ print(field_2.positions_matrix)
 print("")
 '''
 
-#Prueba: Objeto diaforina, método infection. Se quiere ver si los árboles infectados se ve con 7 en position_matrix
-'''field_3=Field((20,10))
+#Prueba: Objeto diaforina, método infection. Se quiere ver si los árboles infectados se ven con 7 en position_matrix
+'''
+field_3=Field((20,10))
 diaforina_1=Diaphorina(field_3)
-tree_1=Tree((0, 4))
-tree_2=Tree((2, 3))
-tree_3=Tree((3, 5))
+tree_1=Tree((0, 4), field=field_3)
+tree_2=Tree((2, 3), field=field_3)
+tree_3=Tree((3, 5), field=field_3)
 field_3.add_tree(tree_1)
 field_3.add_tree(tree_2)
 field_3.add_tree(tree_3)
-tree_1.diaphorina_amount=100000
+tree_1.diaphorina_amount=10
 tree_1.manual_infection()
-print(tree_1.infected)
-tree_2.diaphorina_amount=100000
+print('It is '+str(tree_1.infected)+' that this tree is infected')
+tree_2.diaphorina_amount=10
 tree_2.manual_infection()
-tree_3.diaphorina_amount=100000
+tree_3.diaphorina_amount=0
 tree_3.manual_infection()
 print("Forestlist")
 print(field_3.forestlist)
@@ -75,19 +76,11 @@ print(field_3.positions_matrix)
 print("")
 '''
 
-field_3=Field((20,10))
+#Prueba: infectar aleatoriamente un campo filled
 
-tree_3=Tree((3, 5), field_3)
-print(tree_3.diaphorina_amount)
-print(tree_3.infected)
-
-tree_3.diaphorina_amount=100000.
-tree_3.manual_infection()
-print(tree_3.diaphorina_amount)
-print(tree_3.infected)
-
-
-
+field_4=Field((10,10))
+field_4.fill(age=1, diaphorina=True, infected=True)
+print(field_4.positions_matrix)
 
 
 
@@ -106,8 +99,8 @@ print(tree_3.infected)
 #Commit 19/9/21:
 #-Completado	Definir la clase diaforina
 
-#En proceso:
-#Hacer que si un árbol está infectado se vea como un 7 en position matrix (no se muestra ningún 7 luego de usar manual_infection)
+#Commit del 27/9/21:
+#-Completado	Hacer que si un árbol está infectado se vea como un 7 en position matrix (no se muestra ningún 7 luego de usar manual_infection)
 
 #Pendientes:
 #Crear una diaphorina_matrix que nos diga el número de diaforinas que hay 
