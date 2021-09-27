@@ -1,25 +1,29 @@
 import numpy as np
 import random
-import matplotlib
-import pylab
+#import matplotlib
+#import pylab
 #----------------------------------------- Clases ------------------------------------------
 class Tree:
-	def __init__(self,position,age=0.):
+	def __init__(self, position, age=0., field=None):
 		self.position=position 
 		self.age=age
 		self.infected=False
 		self.diaphorina_amount=0.
+		self.field=field
 
 		#Métodos
 	def manual_infection(self):#Sortea si un árbol sano se infecta o no
 		if self.infected==False:#if el árbol está sano
 			try:
-				infection_probability=1.-diaphorina_amount**(-1.) #calculamos la probabilidad de contagio en función de las diaforinas
+				infection_probability=1.-self.diaphorina_amount**(-1.) #calculamos la probabilidad de contagio en función de las diaforinas
 			except:
-				infection_probability=0 #Estaa probabilidad infección depende sólo del número de diaforinas, no del número de diaforinas infectadas
+				infection_probability=0 #Esta probabilidad infección depende sólo del número de diaforinas, no del número de diaforinas infectadas
 			if random.random()<infection_probability:#si un número aleatorio es menor que esa probabilidad, se contagia
-				infected=True
-				self.positions_matrix[tree.position[0],tree.position[1]]=7
+				self.infected=True
+				try:
+					self.field.positions_matrix[tree.position[0],tree.position[1]]=7
+				except:
+					pass	
 				#Para una función más realista, véase infection() en la clase diaphorina
 class Field:
 	def __init__(self, size=(100,100)):
@@ -33,7 +37,7 @@ class Field:
 		self.forestlist=list(forestlist_generator)	
 	
 		#Métodos
-	def add_tree(self,tree):#Agrega un árbol en una posoción dada  
+	def add_tree(self,tree):#Agrega un árbol en una posición dada  
 		if self.positions_matrix[tree.position[0],tree.position[1]]==0:#-sólo si esta está vacía-
 			self.forestlist[tree.position[0]][tree.position[1]]=tree#al forestlist
 			if tree.infected==True:#y ocupa la casilla en positions_matrix con 7 if infected y con 1 if not
@@ -66,10 +70,13 @@ class Field:
 				if infected==True:
 					random_tree.infection()
 
-				self.forestlist[i][j]=random_tree #lo inserta en el nosque
-				self.positions_matrix[i,j]=1 #Lo marca en la matriz de posociones
+				self.forestlist[i][j]=random_tree #lo inserta en el bosque
+				self.positions_matrix[i,j]=1 #Lo marca en la matriz de posiciones
 				'''print(self.forestlist[i][j])
 				print(self.positions_matrix[i,j])'''
+
+	def run(self):
+		pass
 	'''En construcción: def add_random_trees(self,Number_of_trees):
 		field_width=self.size[0]
 		field_height=self.size[1]
@@ -99,97 +106,3 @@ class Diaphorina:
 		self.position=(random.randint(0, field.size[0]-1), random.randint(0, field.size[1]-1))#Hay problema con que no haya sido definida aún esta lista?
 #-------------------------- Creación de Objetos --------------------------------
 
-#Campo uno y métodos básicos
-'''
-field_1=Field((20,6))
-
-print("Forestlist -Campo virgen-")
-print(field_1.forestlist)
-print("")
-
-print("Posiciones -Campo virgen-")
-print(field_1.positions_matrix)
-print("")
-tree_1=Tree((0, 4))
-tree_2=Tree((2, 3))
-tree_3=Tree((3, 5))
-
-field_1.add_tree(tree_1)
-field_1.add_tree(tree_2)
-field_1.add_tree(tree_3)
-print("Forestlist -Campo luego de add-")
-print(field_1.forestlist)
-print("")
-print("Posiciones -Campo luego de add-")
-print(field_1.positions_matrix)
-
-
-field_1.delete_tree(None, tree_3)
-print("Forestlist -Luego de borrar tree_3-")
-print(field_1.forestlist)
-print("")
-print("Posiciones -Luego de borrar tree_3-")
-print(field_1.positions_matrix)
-
-field_1.delete_tree((0,4))
-print("Forestlist -Luego de borrar (0,4)-")
-print(field_1.forestlist)
-print("")
-print("Posiciones -Luego de borrar (0,4)-")
-print(field_1.positions_matrix)
-'''
-
-#Campo dos y fill
-'''field_2=Field((10, 10))
-print("Forestlist -Campo2 virgen-")
-print(field_2.forestlist)
-print("")
-
-print("Posiciones -Campo2 virgen-")
-print(field_2.positions_matrix)
-print("")
-
-field_2.fill(age=3, diaphorina_amount=2)
-
-print("Forestlist -Campo2 filled-")
-print(field_2.forestlist)
-print("")
-
-print("Posiciones -Campo2 filled-")
-print(field_2.positions_matrix)
-print("")
-'''
-field_3=Field((20,10))
-diaforina_1=Diaphorina(field_3)
-tree_1=Tree((0, 4))
-tree_2=Tree((2, 3))
-tree_3=Tree((3, 5))
-field_3.add_tree(tree_1)
-field_3.add_tree(tree_2)
-field_3.add_tree(tree_3)
-tree_1.diaphorina_amount=100000
-tree_1.manual_infection()
-tree_2.diaphorina_amount=100000
-tree_2.manual_infection()
-tree_3.diaphorina_amount=100000
-tree_3.manual_infection()
-
-print("Forestlist")
-print(field_3.forestlist)
-print("")
-
-print("Posiciones")
-print(field_3.positions_matrix)
-print("")
-
-#Commit 19/9/21:
-#-Completado	Definir la clase diaforina
-
-#En proceso:
-#Hacer que si un árbol está infectado se vea como un 7 en position matrix (no se muestra ningún 7 luego de usar manual_infection)
-
-#Pendientes:
-#Crear una diaphorina_matrix que nos diga el número de diaforinas que hay 
-#Hacer que al crear un árbol, se creen los objetos diaforina en él si es que diaphorina_amount!=0
-#Dar una forma de distribuir las diaforinas con el modelo hecho en el capítulo 19
-#Hacer algo para verlo gráficamente
