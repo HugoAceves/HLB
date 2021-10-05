@@ -1,6 +1,6 @@
 from main import *
 
-#Prueba: creación de campo, de árbol; positions_matrix, forestlist. Métodos delete y add.
+#Prueba: creación de campo, de árbol; positions_matrix, forestlist. Métodos delete y add.----------------------
 '''
 field_1=Field((20,6))
 print("Forestlist -Campo virgen-")
@@ -34,7 +34,7 @@ print("Posiciones -Luego de borrar (0,4)-")
 print(field_1.positions_matrix)
 '''
 
-#Prueba: Método fill
+#Prueba: Método fill----------------------------------------------------------------------------------------------
 '''field_2=Field((10, 10))
 print("Forestlist -Campo2 virgen-")
 print(field_2.forestlist)
@@ -76,15 +76,41 @@ print(field_3.positions_matrix)
 print("")
 '''
 
-#Prueba: infectar aleatoriamente un campo filled
-
+#Prueba: infectar aleatoriamente un campo filled--------------------------------------------------------------------
+'''
 field_4=Field((10,10))
 field_4.fill(age=1, diaphorina=True, infected=True)
 print(field_4.positions_matrix)
+'''
+
+#Prueba: Se llena el campo de árboles con algunos enfermos de forma aleatoria, luego el método spread esparce la enfermedad
+
+'''
+Se llena el campo de árboles con algunos enfermos de forma aleatoria
+field_5=Field((24,24))
+field_5.fill(age=1, diaphorina=True, infected=True)
+print('Campo inicial \n')
+print(field_5.positions_matrix)
+#Luego el método spread esparce la enfermedad mediante play()
+field_5.play(iterations=3)
+print()
+print('Campo final\n')
+print(field_5.positions_matrix)
+'''
 
 
-
-
+field = Field((24,24))
+field.fill_random(0.9)
+field.set_diaphorina_in_random_tree()
+field.show_field()
+field.update_field(50)
+field.show_field()
+field.set_diaphorina_in_random_tree(diaphorina_amount=3,infectious=True)
+field.update_field(50)
+field.show_field()
+for i in range(100):
+    field.update_field(50)
+    field.show_field()
 
 
 
@@ -102,8 +128,15 @@ print(field_4.positions_matrix)
 #Commit del 27/9/21:
 #-Completado	Hacer que si un árbol está infectado se vea como un 7 en position matrix (no se muestra ningún 7 luego de usar manual_infection)
 
+#Commit del 29/9/21:
+#Crear un método (un bucle llamado spread) que propague la enfermedad
+
+#En proceso
+#Hacer que la infección de spread no sea
+#Hacer que se pueda ver la evolución de todas las iteraciones de spread
+
 #Pendientes:
-#Crear una diaphorina_matrix que nos diga el número de diaforinas que hay 
+#Crear una diaphorina_matrix que nos diga el número de diaforinas que hay
 #Hacer que al crear un árbol, se creen los objetos diaforina en él si es que diaphorina_amount!=0
 #Dar una forma de distribuir las diaforinas con el modelo hecho en el capítulo 19
 #Hacer algo para verlo gráficamente
