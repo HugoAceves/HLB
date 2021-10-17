@@ -99,10 +99,10 @@ print(field_5.positions_matrix)
 '''
 
 
-field = Field((24,24))
-field.fill_random(0.9)
-field.set_diaphorina_in_random_tree()
-field.show_field()
+field = Field((204,204))#Creamos el campo, luego se
+field.fill_random(0.9)#llena el campo con árboles, dejando algunos huecos aleatorios, después
+field.set_diaphorina_in_random_tree()#asigna a un árbol aleatorio diaforinas sanas.
+field.show_field()#Muestra la interfaz del campo
 field.update_field(50)
 field.show_field()
 field.set_diaphorina_in_random_tree(diaphorina_amount=3,infectious=True)

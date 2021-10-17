@@ -32,17 +32,17 @@ class Field:#-------------------------------------------------------------------
 	def __init__(self, size=(24,24)):#El default size del campo es 24x24 porque
 		self.size=size#ese es el tamaño máximo que se muestra correctamente en REPL.
 		self.positions_matrix=np.zeros(size)#La positions_matrix es una matriz que nos dice el estado de cada lugar del campo:
-		forestlist_generator=[]# 0 si está vacía, 1 si tiene un árbol, 8 si tiene un árbol infectado.
+		forestlist_generator=[]# 0 si está vacía, 1 si tiene un árbol, 3 si tiene un árbol infectado, 2 si aloja diaforinas.
 		for i in range(size[0]):#Forestlist es una lista de listas que va uno a uno con la positions_matrix,
 			forestlist_generator.append([])# sus elementos son los objetos de la clase árbol.
 			for j in range(size[1]):
 				forestlist_generator[i].append(None)
 		self.forestlist=list(forestlist_generator)
-		self.figure=None#~
+		self.figure=None#~Es el atributo figura para matplotlib
 		
 
 
-		#Métodos--------------------------------------------------------------------------------
+		#Métodos internos--------------------------------------------------------------------------------
 	def add_tree(self,tree):#Agrega un árbol en una posición dada
 		if self.positions_matrix[tree.position[0],tree.position[1]]==0:#-sólo si la posición está vacía-
 			self.forestlist[tree.position[0]][tree.position[1]]=tree#añade el árbol al forestlist
@@ -60,8 +60,6 @@ class Field:#-------------------------------------------------------------------
 			self.forestlist[position[0]][position[1]]=None
 			self.positions_matrix[position[0], position[1]]=0
 
-#-----------------------------------------------------------------------------------------------------------------------~Agregar a cÓdigo
-
 	def fill_random(self,proportion,age=1):#~Llena el campo con árboles, dejando algunos huecos aleatorios
 		for i in range(self.size[0]):
 			for j in range(self.size[1]):
@@ -71,92 +69,97 @@ class Field:#-------------------------------------------------------------------
 	def get_tree_positions(self):#~Nos devuelve una matriz de 2xn con las n coordenadas de los elementos que no son cero en positions_matrix
 		return np.transpose(np.nonzero(self.positions_matrix))
 
-	def set_diaphorina_in_random_tree(self,diaphorina_amount=10,infectious=False):
+	def set_diaphorina_in_random_tree(self,diaphorina_amount=10,infectious=False):#~Asigna a un árbol aleatorio diaforinas sanas o enfermas según se quiera
+	#en algún lugar aleatorio del campo siempre y cuando tenga árbol
 		positions=list(self.get_tree_positions())#Hace una lista con los elementos de la matriz generada por get_tree_positions(),
-		position=random.choice(positions)#luego elige una posición de esta lista y 
-		tree=self.forestlist[position[0]][position[1]]# con ella crea un árbol en ésta.
-		if (infectious==True):
-			tree.infectious_diaphorina=diaphorina_amount
+		position=random.choice(positions)#luego elige una posición aleatoria de esta lista y 
+		tree=self.forestlist[position[0]][position[1]]# se toma al árbol en ésta.
+		if (infectious==True):#Si se pide, al árbol se le asigna
+			tree.infectious_diaphorina=diaphorina_amount# una cantidad diaphorina_amount de diaforinas infectadas,
 		else:
-			tree.diaphorina_amount=diaphorina_amount
-		self.positions_matrix[tree.position]=2
+			tree.diaphorina_amount=diaphorina_amount#o si no se pide; una cantidad diaphorina_amount de diaforinas sanas.
+		self.positions_matrix[tree.position]=2#El árbol con diaforinas se muestra como un 2 en positions_matrix.
 
 
-	def get_neighbour_trees(self,position):
+	def get_neighbour_trees(self,position):#~Nos devuelve una lista de los árboles vecinos dada una posición (longitud, latitud)
 		neighbours = []
-		if position[0]<self.size[0]-1:
-			right=position + np.array([1,0])
-			if (self.positions_matrix[right[0],right[1]]>0):
-				neighbours.append(right)
-		if position[0]>0 :
+		if position[0]<self.size[0]-1:#Si la longitud es menor al ancho del campo (si fuera igual, no tendría vecino a la derecha),
+			right=position + np.array([1,0])#entonces nombra right al espacio de la derecha (mediante una suma vectorial unitaria î)
+			if (self.positions_matrix[right[0],right[1]]>0):#si en positions_matrix hay árbol en la posición right,
+				neighbours.append(right)#entonces agrega lo que haya en right (un objeto árbol) a la lista de vecinos.
+		if position[0]>0 :#Análogo para la izquierda
 			left=position + np.array([-1,0])
 			if (self.positions_matrix[left[0],left[1]]>0):
 				neighbours.append(left)
-		if position[1]<self.size[1]-1:
+		if position[1]<self.size[1]-1:#Análogo para arriba
 			up=position + np.array([0,1])
 			if (self.positions_matrix[up[0],up[1]]>0):
 				neighbours.append(up)
-		if position[1]>0:
+		if position[1]>0:#Análogo para abajo
 			down=position + np.array([0,-1])
 			if (self.positions_matrix[down[0],down[1]]>0):
 				neighbours.append(down)
-		return neighbours
+		return neighbours#Finalmente nos devuelve la lista de vecinos
+		'''?Quizás sea bueno incluir también los vecinos de las esquinas'''
 
-	def diaphorina_spread(self):
-		fraction=0.3 #fraction of diaphorina that spreads to neighbor
-		pos=self.positions_matrix
-		diaphorina_positions = np.transpose(np.nonzero(pos==2))
-		diaph_position=random.choice(diaphorina_positions)
-		neighbour_trees=self.get_neighbour_trees(diaph_position)
-		propagate_to=random.choice(neighbour_trees)
-		tree_to=self.forestlist[propagate_to[0]][propagate_to[1]]
-		tree_from=self.forestlist[diaph_position[0]][diaph_position[1]]
-		tree_to.diaphorina_amount = fraction*tree_from.diaphorina_amount
-		tree_to.infectious_diaphorina = fraction*tree_from.infectious_diaphorina
-		tree_from.diaphorina_amount -= tree_to.diaphorina_amount
-		tree_from.infectious_diaphorina -= tree_to.infectious_diaphorina
-		self.positions_matrix[tree_to.position]=2
+	def diaphorina_spread(self):#~Toma una fraction de las diaforinas de un árbol aleatorio del tipo 2, y las mueve a algún vecino aleatorio
+		fraction=0.3 #~fraction of diaphorina that spreads to neighbor
+		pos=self.positions_matrix#Recordemos que los elementos 2 en pos, son las posiciones con los árboles con diaforinas, de modo que la siguiente,
+		diaphorina_positions = np.transpose(np.nonzero(pos==2))#~es la matriz 2xn con las n coordenadas de los elementos iguales a 2 en pos.
+		diaph_position=random.choice(diaphorina_positions)#diaph_position es una posición alatoria que tenga diaforinas,
+		neighbour_trees=self.get_neighbour_trees(diaph_position)#neighbour_trees son los vecinos de esa posición.
+		propagate_to=random.choice(neighbour_trees)#Propagate_to es una posición (una tupla) vecina elegida aletoriamente,
+		tree_to=self.forestlist[propagate_to[0]][propagate_to[1]]#y es aquí donde se toma el objeto árbol basados en esa posición,
+		tree_from=self.forestlist[diaph_position[0]][diaph_position[1]]#así como el árbol desde el que parte la diaforina.
+		tree_to.diaphorina_amount = fraction*tree_from.diaphorina_amount#se esparce al otro árbol la fracción de diaforina sana
+		tree_to.infectious_diaphorina = fraction*tree_from.infectious_diaphorina#se esparce al otro árbol la fracción de diaforina infectada
+		tree_from.diaphorina_amount -= tree_to.diaphorina_amount#se resta del primer árbol la fracción de diaforina sana que se va al segundo
+		tree_from.infectious_diaphorina -= tree_to.infectious_diaphorina#se resta del primer árbol la fracción de diaforina enferma que se va al segundo
+		self.positions_matrix[tree_to.position]=2#El segundo árbol es registrado como un árbol con diaforinas infectadas
 
-	def update_infected_trees(self):
-		def hill(x):
+	def update_infected_trees(self):#~Recorre toda la position matrix y sortea si se infectan ÁRBOLES en función de la cantidad de diaforinas que alojen
+		def hill(x):#Da la probabilidad de infección en función de la ecuadión de Hill
 			return math.pow(x,2)/(36. + math.pow(x,2)) #hill function of probability of infection
 
 		pos=self.positions_matrix
-		diaphorina_positions = list(np.transpose(np.nonzero(pos==2)))
-		for site in diaphorina_positions:
-			tree=self.forestlist[site[0]][site[1]]
-			probability = hill(tree.infectious_diaphorina)
+		diaphorina_positions = list(np.transpose(np.nonzero(pos==2)))#es la lista 2xn con las n posiciones de los elementos iguales a 2 en pos.
+		
+		for site in diaphorina_positions:#Para cada posición en la lista de árboles con diaforinas infectadas
+			tree=self.forestlist[site[0]][site[1]]#Llamamos Tree al árbol en esa posición,
+			probability = hill(tree.infectious_diaphorina)#probability a hill(número de diaforinas infectadas del árbol)
 			if (random.random()<probability):
-				tree.infected=True
-				self.positions_matrix[tree.position]=3
+				tree.infected=True#Sorteamos si el árbol se infecta, basados en hill(número de diaforinas infectadas del árbol)
+				self.positions_matrix[tree.position]=3#y lo marcamos con un 3 (3 es para árblores infectados)
 
-	def update_infectious_diaphorina(self):
+	def update_infectious_diaphorina(self):#~Recorre position_matrix e infecta una fracción (prob) de las diaforinas de un árbol infectado
 		prob=0.3 #probability of infection for diaphorina
 		pos=self.positions_matrix
-		infected_positions = list(np.transpose(np.nonzero(pos==3)))
-		for site in infected_positions:
+		infected_positions = list(np.transpose(np.nonzero(pos==3)))#Se toma una lista con las posiciones de todos los árboles infectados,
+		for site in infected_positions:#luego para cada uno,
 			tree=self.forestlist[site[0]][site[1]]
-			tree.infectious_diaphorina += prob*tree.diaphorina_amount
-			tree.diaphorina_amount -= prob*tree.diaphorina_amount
+			tree.infectious_diaphorina += prob*tree.diaphorina_amount#toma la facción prob de las diaforinas totales, y las suma a las infectadas,
+			tree.diaphorina_amount -= prob*tree.diaphorina_amount#y naturalmente luego las resta de las diaforinas sanas.
 
-	def update_diaphorina_amount(self):
-		def logistic_growth(x):
+	def update_diaphorina_amount(self):#~Hace crecer a la población de diaforinas logísticamente
+		def logistic_growth(n):#Nos da un incremento logístico
 			r=0.1
 			K=500.
-			return r*x*(1. - x/K)
+			return r*n*(1. - n/K)
 		pos=self.positions_matrix
 		diaphorina_positions = list(np.transpose(np.nonzero(pos==2)))
-		for site in diaphorina_positions:
-			tree=self.forestlist[site[0]][site[1]]
-			tree.infectious_diaphorina += logistic_growth(tree.diaphorina_amount)
-			tree.diaphorina_amount += logistic_growth(tree.diaphorina_amount)
+		for site in diaphorina_positions:#Recorre las posiciones de árboles con diaforinas, y las incrementa logísticamente
+			tree=self.forestlist[site[0]][site[1]]#mediante logistic_growth,
+			tree.infectious_diaphorina += logistic_growth(tree.diaphorina_amount)#tanto a las infectadas
+			tree.diaphorina_amount += logistic_growth(tree.diaphorina_amount)#como a las sanas.
 
-	def show_field(self):
-		plt.ion()
+		#Métodos de interfaz--------------------------------------------------------------------------------
+
+	def show_field(self):#~Muestra la interfaz del campo
+		plt.ion()#Enciende el modo interactivo
 		i=1
 		if self.figure==None :
-			self.figure = plt.figure()
-			self.figure.add_subplot(111)
+			self.figure = plt.figure()#Se da a este atributo una figura
+			self.figure.add_subplot(1,1,1)#?
 			i=0
 
 		ax=self.figure.get_axes()[0]
@@ -169,22 +172,14 @@ class Field:#-------------------------------------------------------------------
 		#plt.matshow(self.positions_matrix)
 
 
-	def update_field(self,times=1):
+	def update_field(self,times=1):#Actualiza el campo y equivale a un paso si times=1
 		for i in range(times):
-		    self.diaphorina_spread()
-		    self.update_diaphorina_amount()
-		    self.update_infected_trees()
-		    self.update_infectious_diaphorina()
+		    self.diaphorina_spread()#Toma una fraction de las diaforinas de un árbol aleatorio del tipo 2, y las mueve a algún vecino aleatorio,
+		    self.update_diaphorina_amount()#luego hace crecer a la población de diaforinas logísticamente, después
+		    self.update_infected_trees()#recorre position matrix y sortea la infección de árboles en función de la cantidad de diaforinas que alojen,
+		    self.update_infectious_diaphorina()#finalmente recorre position_matrix e infecta una fracción de las diaforinas de un árbol infectado.
 
-#-----------------------------------------------------------------------------------------------------------------------------------------------
-
-#En construcción:
-'''
-def replace_tree(self, old_tree, new_tree):
-		self.delete_tree(old_tree)
-		self.add_tree(new_tree)
-
-'''
+		#Métodos antiguos--------------------------------------------------------------------------------
 
 	def fill(self, age, diaphorina=False, infected=False):#Nos llena un campo con árboles aleatorios,
 		for i in range(self.size[0]):#Podemos elegir si todos los árboles serán sanos y sin diaforinas o
@@ -221,17 +216,7 @@ def replace_tree(self, old_tree, new_tree):
 		for i in range(iterations):#Se hace play independiente de spread para que se pueda iterar el campo sin forzosamente esparcir infecciones,
 			self.spread()# esto podría ser útil en el futuro.
 
-	'''En construcción:
-		def add_random_trees(self,Number_of_trees):
-		field_width=self.size[0]
-		field_height=self.size[1]
-		x = np.random.randint(field_width, size=Number_of_trees)
-		y = np.random.randint(field_height, size=Number_of_trees)
-		list_to_add=[Tree((x,y)) for x,y in zip(x,y)]
-		self.trees.append(list_to_add)
-	Quité momentáneamente este método porque los campos comerciales no tienen  árboles distribuidos aleatoriamente,
-	están siempre en cuadrículas llenas, quizás en los traspatios sí lo estén,
-	'''
+
 class Diaphorina:#--------------------------------------------------------------------------------
 	def __init__(self, field, position=(None, None)):
 		self.position=position
