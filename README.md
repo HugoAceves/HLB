@@ -1,2 +1,4 @@
-# HLB
-This is an HLB simulation
+#Este proyecto es una simulación basada en agentes individuales, sobre el comportamiento del contagio de HLB en una huerta de cítricos en México.
+Este trabajo forma parte de las investigaciones que comencé en 2020 como parte de mi tesis de licenciatura en física. El objetivo era aportar algo de luz en el entendimiento del HLB, particularmente en entender por qué, a pesar de los esfuerzos, el HLB continúa esparciéndose por México. Una de las ideas que guiaron las investigaciones fue que las normas no son suficientemente rigurosas y que no toman en cuenta el efecto que el período de incubación de la enfermedad puede tener en el contagio a gran escala.
+Para lograrlo, se creó la simulación Main.py, que representa a una huerta de cítricos. En ella, se tiene un arreglo de n filas por m columnas en el que cada elemento es un objeto de la clase Tree, estos objetos son capaces de alojar psílidos y de estar, o no, infectados con HLB. Existen en la simulación algunas funciones que distribuyen al psílido vector por la huerta y acrecentan su población. La dinámica de la población de psílidos determina la dinámica de los contagios de HLB.
+Este trabajo es de uso libre y puede ser modificado a fin de continuar con el modelado de esta enfermedad.
