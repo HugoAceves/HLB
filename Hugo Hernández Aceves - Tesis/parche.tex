@@ -1,0 +1,107 @@
+\makeatletter
+\def\vocalc#1{\gdef\@vocalc{#1}}
+ \def\@vocalc{\@latex@warning@no@line{No me has dado al \noexpand\vocalb}}
+\renewcommand\makeacta{%
+             \begin{titlepage}%
+             \def\@thanks{}%evita la ocurrencia de doble pie de pagina
+  \let \footnotesize \small
+  \let \footnoterule \relax
+  \let \footnote \thanks %\relax
+  %\let \mpfootnotetext{}
+  \null\vfill
+  %\vskip 60\p@
+    \begin{flushleft}%
+        {\Large \textbf{T\'{\i}tulo:} \@title \par}
+             %\let\@thanks\relax
+        {\Large \textbf{Estudiante:}\textsc{\@author} \par}%
+
+    \end{flushleft}%
+
+    \vspace{1cm}
+    {\large
+      \begin{center}%
+
+        COMIT\'E
+        \vspace{2cm}
+
+        \begin{minipage}{5cm}
+          \centering
+          \vspace{1.2cm}%
+          \rule{5cm}{1pt}%
+
+          \@presidente
+
+          Presidente
+        \end{minipage}%
+        \hspace{1cm}
+        \begin{minipage}{5cm}
+          \centering
+          \vspace{1.2cm}%
+          \rule{5cm}{1pt}%
+
+          \@secretario
+
+          Secretario
+        \end{minipage}\\*[1cm]
+
+        \begin{minipage}{5cm}
+          \centering
+          \vspace{1.2cm}%
+          \rule{5cm}{1pt}%
+
+          \@vocala
+
+          Vocal
+        \end{minipage}%
+        \hspace{1cm}
+        \begin{minipage}{5cm}
+          \centering
+          \vspace{1.2cm}%
+          \rule{5cm}{1pt}%
+        
+          \@vocalb
+        
+          Vocal
+        \end{minipage}\\*[1cm]
+        
+        \begin{minipage}{5cm}
+          \centering
+          \vspace{1.2cm}%
+          \rule{5cm}{1pt}%
+
+          \@vocalc
+
+          Vocal
+        \end{minipage}%
+        \hspace{1cm}
+        \begin{minipage}{5cm}
+          \centering
+          \vspace{1.2cm}%
+          \rule{5cm}{1pt}%
+
+          \@asesor
+
+          Asesor
+        \end{minipage}
+      \end{center}}
+             \@thanks\par
+      \vfill\null
+  % \@thanks\par          
+%
+ %  {\@thanks\par}%    
+  \end{titlepage}%
+      \setcounter{footnote}{0}%
+%  \global\let\thanks\relax
+%  \global\let\makeacta\relax
+%  \global\let\@thanks\@empty
+%  \global\let\@author\@empty
+%  \global\let\@date\@empty
+%  \global\let\@title\@empty
+%  \global\let\title\relax
+%  \global\let\author\relax
+%  \global\let\date\relax
+%  \global\let\and\relax
+%  \gloabal\let\thanks\relax
+%  \global\let\footnote\relax
+}
+\makeatother
